@@ -15,6 +15,7 @@ do
     user.InputUserData();
     user.ValidateData();
     WriteLine($"Роль: {user.GetRole()}");
+    user.LogActivity();
     users.Add(user);
 
     Write("Повторить ввод? (да/нет): ");
@@ -26,17 +27,33 @@ while (restart);
 WriteLine("Все пользователи: ");
 
 foreach (IUser user in users)
-{
+{ 
     user.ValidateData();
     WriteLine($"Роль: {user.GetRole()}");
     user.PrintInfo();
 }
+
+var filtered = users
+        .Where(user => user.Age >= 18)
+        .OrderBy(user => user.Age);
+
+
+WriteLine("Пользователи старше 18 лет:");
+foreach (var user in filtered)
+{
+    user.PrintInfo();
+}
+
+
 
 public interface IUser
 {
     void ValidateData();
     string GetRole();
     void PrintInfo();
+
+    string Name { get; set; }
+    int Age { get; set; }
 }
 
 public abstract class BaseUser : IUser
@@ -55,6 +72,11 @@ public abstract class BaseUser : IUser
     public abstract string GetRole();
 
     public abstract void PrintInfo();
+
+    public virtual void LogActivity()
+    {
+        Write("Логи активированны ");
+    }
 }
 
 public class User : BaseUser
@@ -152,6 +174,12 @@ public class User : BaseUser
     {
         WriteLine($"Имя: {Name}, Возраст: {Age}");
     }
+
+    public override void LogActivity()
+    {
+        base.LogActivity();
+        WriteLine($"для {Name}");
+    }
 }
 
 public class Person
@@ -226,5 +254,6 @@ public class AdminUser : BaseUser
             Age = 100;
         }
     }
+    
 }
 
