@@ -41,17 +41,27 @@ public interface IUser
 
 public abstract class BaseUser : IUser
 {
-    public abstract void ValidateData();
-    public string GetRole();
+    public string Name { get; set; }
 
-    public void PrintInfo();
+    public int Age { get; set; }
+
+    public BaseUser(string name, int age)
+    {
+        Name = name;
+        Age = age;
+    }
+
+    public abstract void ValidateData();
+    public abstract string GetRole();
+
+    public abstract void PrintInfo();
 }
 
 public class User : BaseUser
 {
-    public string Name { get; set; }
-
-    public int Age { get; set; }
+    public User(string name, int age) : base(name, age)
+    {
+    }
 
     public override void ValidateData()
     {
@@ -133,9 +143,14 @@ public class User : BaseUser
         Age = GetInteger("Введите возраст: ");
     }
 
-    public string GetRole()
+    public override string GetRole()
     {
         return "Пользователь";
+    }    
+
+    public override void PrintInfo()
+    {
+        WriteLine($"Имя: {Name}, Возраст: {Age}");
     }
 }
 
@@ -183,13 +198,13 @@ public class Person
     }
 }
 
-public class AdminUser : Person, IUser
+public class AdminUser : BaseUser
 {
     public AdminUser(string name, int age) : base(name, age)
     {
     }
 
-    public string GetRole()
+    public override string GetRole()
     {
         return "Администратор";
     }
@@ -201,7 +216,10 @@ public class AdminUser : Person, IUser
 
     public override void ValidateData()
     {
-        base.ValidateData();
+        if (!string.IsNullOrWhiteSpace(Name))
+        {
+            WriteLine("Имя администратора не может быть пустым. Ошибка входа!");
+        }
 
         if (Age > 100)
         {
