@@ -5,6 +5,8 @@ List<IUser> users = new List<IUser>();
 
 users.Add(new User("Иван", 25));
 users.Add(new AdminUser("admin", 101));
+users.Add(new Person("Оля", 22));
+users.Add(new GuestUser("Светлана", 18));
 
 bool restart = true;
 
@@ -18,6 +20,8 @@ do
     user.LogActivity();
     users.Add(user);
 
+
+
     Write("Повторить ввод? (да/нет): ");
     string answer = ReadLine();
     restart = answer.ToLower() == "да";
@@ -27,7 +31,7 @@ while (restart);
 WriteLine("Все пользователи: ");
 
 foreach (IUser user in users)
-{ 
+{
     user.ValidateData();
     WriteLine($"Роль: {user.GetRole()}");
     user.PrintInfo();
@@ -37,9 +41,40 @@ var filtered = users
         .Where(user => user.Age >= 18)
         .OrderBy(user => user.Age);
 
-
 WriteLine("Пользователи старше 18 лет:");
 foreach (var user in filtered)
+{
+    user.PrintInfo();
+}
+
+var filteredTips1 = users
+    .Where(user => user.Age >= 22)
+    .OrderBy(user => user.Age);
+
+WriteLine("Пользователи старше 22 года:");
+foreach (var user in filteredTips1)
+{
+    user.PrintInfo();
+}
+
+var filteredTips2 = users
+    .Where(u => u is Person user && user.Age >= 22)
+    .ToList();
+
+
+WriteLine("Пользователи старше 22 года:");
+foreach (var user in filteredTips2)
+{
+    user.PrintInfo();
+}
+
+var filteredTips3 = users
+    .OfType<GuestUser>()
+    .Where(u => u.Name.Length > 5);
+
+
+WriteLine("Имя больше 5 символов");
+foreach (var user in filteredTips3)
 {
     user.PrintInfo();
 }
@@ -168,7 +203,7 @@ public class User : BaseUser
     public override string GetRole()
     {
         return "Пользователь";
-    }    
+    }
 
     public override void PrintInfo()
     {
@@ -182,10 +217,11 @@ public class User : BaseUser
     }
 }
 
-public class Person
+public class Person : IUser
 {
     public string Name { get; set; }
     private int _age;
+
 
     public int Age
     {
@@ -224,6 +260,11 @@ public class Person
             Age = 0;
         }
     }
+
+    public string GetRole()
+    {
+        return "Обычный пользователь";
+    }
 }
 
 public class AdminUser : BaseUser
@@ -254,6 +295,40 @@ public class AdminUser : BaseUser
             Age = 100;
         }
     }
-    
+
+}
+
+public class GuestUser : IUser
+{
+    public string Name { get; set; }
+    public int Age { get; set; }
+
+    public GuestUser (string name, int age)
+    {
+        Name=name;
+        Age=age;
+    }
+
+    public string GetRole()
+    {
+        return "Гость";
+    }
+
+    public void PrintInfo()
+    {
+        WriteLine($"Имя: {Name}, Возраст: {Age}");
+    }
+
+    public void ValidateData()
+    {
+        if (string.IsNullOrWhiteSpace(Name))
+        {
+            Name = "Гость";
+        }
+        if (Age < 0)
+        {
+            Age = 0;
+        }
+    }
 }
 
