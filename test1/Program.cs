@@ -1,4 +1,6 @@
-﻿using System.Xml.Linq;
+﻿using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 using static System.Console;
 
 List<IUser> users = new List<IUser>();
@@ -8,76 +10,136 @@ users.Add(new AdminUser("admin", 101));
 users.Add(new Person("Оля", 22));
 users.Add(new GuestUser("Светлана", 18));
 
-bool restart = true;
+await SaveUsersToFileAsync(users, "users.txt");
 
-do
+var loadedUsers = await LoadUsersFromFileAsync("users.txt");
+
+
+
+async Task SaveUsersToFileAsync(List<IUser> users, string filePath)
 {
-    WriteLine("Введите обычного пользователя: ");
-    User user = new User("Иван", 25);
-    user.InputUserData();
-    user.ValidateData();
-    WriteLine($"Роль: {user.GetRole()}");
-    user.LogActivity();
-    users.Add(user);
-
-
-
-    Write("Повторить ввод? (да/нет): ");
-    string answer = ReadLine();
-    restart = answer.ToLower() == "да";
-}
-while (restart);
-
-WriteLine("Все пользователи: ");
-
-foreach (IUser user in users)
-{
-    user.ValidateData();
-    WriteLine($"Роль: {user.GetRole()}");
-    user.PrintInfo();
+    var lines = users.Select(u => $"{u.Name}, {u.Age}, {u.GetRole()}");
+    await File.WriteAllLinesAsync(filePath, lines);
 }
 
-var filtered = users
-        .Where(user => user.Age >= 18)
-        .OrderBy(user => user.Age);
-
-WriteLine("Пользователи старше 18 лет:");
-foreach (var user in filtered)
+WriteLine("Загруженные пользователи: ");
+foreach (var user in loadedUsers)
 {
     user.PrintInfo();
 }
 
-var filteredTips1 = users
-    .Where(user => user.Age >= 22)
-    .OrderBy(user => user.Age);
-
-WriteLine("Пользователи старше 22 года:");
-foreach (var user in filteredTips1)
+async Task<List<IUser>> LoadUsersFromFileAsync(string filePath)
 {
-    user.PrintInfo();
+    if (!File.Exists(filePath))
+    {
+        WriteLine("Файл не найден");
+        return new List<IUser>();
+    }
+
+    var lines = await File.ReadAllLinesAsync(filePath);
+    var loadedUsers = new List<IUser>();
+
+    foreach (var line in lines)
+    {
+        string[] parts = line.Split(',');
+        string name = parts[0];
+        int age = int.Parse(parts[1]);
+        string role = parts[2];
+
+        switch (role)
+        {
+            case "Пользователь":
+                loadedUsers.Add(new User(name, age));
+                break;
+            case "Админстратор":
+                loadedUsers.Add(new AdminUser(name, age));
+                break;
+            case "Обычный пользователь":
+                loadedUsers.Add(new Person(name, age));
+                break;
+            case "Гость":
+                loadedUsers.Add(new GuestUser(name, age));
+                break;
+        }
+
+    }
+
+    return loadedUsers;
 }
 
-var filteredTips2 = users
-    .Where(u => u is Person user && user.Age >= 22)
-    .ToList();
 
 
-WriteLine("Пользователи старше 22 года:");
-foreach (var user in filteredTips2)
-{
-    user.PrintInfo();
-}
+//bool restart = true;
 
-var filteredTips3 = users
-    .OfType<GuestUser>()
-    .Where(u => u.Name.Length > 5);
+//do
+//{
+//    WriteLine("Введите обычного пользователя: ");
+//    User user = new User("Иван", 25);
+//    user.InputUserData();
+//    user.ValidateData();
+//    WriteLine($"Роль: {user.GetRole()}");
+//    user.LogActivity();
+//    users.Add(user);
 
 
-WriteLine("Имя больше 5 символов");
-foreach (var user in filteredTips3)
-{
-    user.PrintInfo();
-}
+
+//    Write("Повторить ввод? (да/нет): ");
+//    string answer = ReadLine();
+//    restart = answer.ToLower() == "да";
+//}
+//while (restart);
+
+//WriteLine("Все пользователи: ");
+
+//foreach (IUser user in users)
+//{
+//    user.ValidateData();
+//    WriteLine($"Роль: {user.GetRole()}");
+//    user.PrintInfo();
+//}
+
+
+//var filtered = users
+//        .Where(user => user.Age >= 18)
+//        .OrderBy(user => user.Age);
+
+//WriteLine("Пользователи старше 18 лет:");
+//foreach (var user in filtered)
+//{
+//    user.PrintInfo();
+//}
+
+//var filteredTips1 = users
+//    .Where(user => user.Age >= 22)
+//    .OrderBy(user => user.Age);
+
+//WriteLine("Пользователи старше 22 года:");
+//foreach (var user in filteredTips1)
+//{
+//    user.PrintInfo();
+//}
+
+//var filteredTips2 = users
+//    .Where(u => u is Person user && user.Age >= 22)
+//    .ToList();
+
+
+//WriteLine("Пользователи старше 22 года:");
+//foreach (var user in filteredTips2)
+//{
+//    user.PrintInfo();
+//}
+
+//var filteredTips3 = users
+//    .OfType<GuestUser>()
+//    .Where(u => u.Name.Length > 5);
+
+
+//WriteLine("Имя больше 5 символов");
+//foreach (var user in filteredTips3)
+//{
+//    user.PrintInfo();
+//}
 
 
 

@@ -4,7 +4,7 @@ string fileName = "notes.txt";
 
 string content = "Привет, хозяин!";
 
-//File.WriteAllText(fileName, content);
+File.WriteAllText(fileName, content);
 
 if (File.Exists(fileName))
 {
