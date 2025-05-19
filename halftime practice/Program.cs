@@ -1,56 +1,27 @@
 ﻿using static System.Console;
 
-ExchangeStudent exchangeStudent = new ExchangeStudent("Мария", 22, "Франция");
-exchangeStudent.DisplayInfo();
-AthleteStudent athleteStudent = new AthleteStudent("Петр", 18, "Футбол");
-athleteStudent.DisplayInfo();
+string fileName = "notes.txt";
 
-public class Student
+string content = "Привет, хозяин!";
+
+//File.WriteAllText(fileName, content);
+
+if (File.Exists(fileName))
 {
-    protected string _name; // protected — доступно в классе и наследниках
-    protected int _age;
+    string contentRead = File.ReadAllText(fileName);
 
-    public Student(string name, int age)
-    {
-        _name = name;
-        _age = age;
-    }
+    WriteLine("Содержимое файла:");
 
-    public virtual void DisplayInfo() // virtual — метод можно переопределить
-    {
-        WriteLine($"Имя: {_name}, Возраст: {_age}");
-    }
+    WriteLine(contentRead);
+
+    File.AppendAllText(fileName, "\nЧто прикажите?");
+
+    contentRead = File.ReadAllText(fileName);
+
+    WriteLine(contentRead);
 }
 
-public class ExchangeStudent : Student
+else
 {
-    private string _country;
-
-    public ExchangeStudent(string name, int age, string country) : base(name, age)
-    {
-        _country = country;
-    }
-
-    public override void DisplayInfo()
-    {
-        base.DisplayInfo();
-        WriteLine($"Страна: {_country}");
-    }
-
-}
-
-public class AthleteStudent : Student
-{
-    private string _sport;
-
-    public AthleteStudent(string name, int age, string sport) : base(name, age)
-    {
-        _sport = sport;
-    }
-
-    public override void DisplayInfo() 
-    {
-        base.DisplayInfo();
-        WriteLine($"Вид спорта: {_sport}");
-    }
+    WriteLine("Файл не найден");
 }
