@@ -1,25 +1,46 @@
 ﻿using static System.Console;
 
-File.WriteAllText("shopping.txt", "Яблоки\nКлубника\nБананы\nГрейпфрут\n");
-
-WriteLine("Содержимое корзины:");
-string readContent = File.ReadAllText("shopping.txt");
-WriteLine(readContent);
-
-WriteLine("Добавить: ");
-string newItem = ReadLine();
-
-if (string.IsNullOrWhiteSpace(newItem))
+using (var writer = new StreamWriter("shopping.txt"))
 {
-    WriteLine("Ошибка: нельзя добавить пустой элемент");
+    writer.WriteLine("Яблоки");
+    writer.WriteLine("Клубника");
+    writer.WriteLine("Бананы");
+    writer.WriteLine("Грейпфрут");
 }
-else
+
+using (var reader = new StreamReader("shopping.txt"))
 {
-    File.AppendAllText("shopping.txt", newItem + "\n");
+    WriteLine("Содержимое корзины:");
+    string line;
+    while ((line = reader.ReadLine()) != null)
+    {
+        WriteLine(line);
+    }
+}
 
-    WriteLine($"{newItem} добавлен в корзину");
+using (var writer = new StreamWriter("shopping.txt", append: true))
+{
+    WriteLine("Добавить: ");
+    string newItem = ReadLine();
 
+    if (string.IsNullOrWhiteSpace(newItem))
+    {
+        WriteLine("Ошибка: нельзя добавить пустой элемент");
+    }
+    else
+    {
+        writer.WriteLine(newItem);
+
+        WriteLine($"\n{newItem} добавлен в корзину\n");
+    }
+}
+
+using (var reader = new StreamReader("shopping.txt"))
+{
     WriteLine("Обновлённое содержимое корзины:");
-    readContent = File.ReadAllText("shopping.txt");
-    WriteLine(readContent);
+    string line;
+    while ((line = reader.ReadLine()) != null)
+    {
+        WriteLine(line);
+    }
 }
