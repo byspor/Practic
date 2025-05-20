@@ -1,27 +1,25 @@
 ﻿using static System.Console;
 
-string fileName = "notes.txt";
+File.WriteAllText("shopping.txt", "Яблоки\nКлубника\nБананы\nГрейпфрут\n");
 
-string content = "Привет, хозяин!";
+WriteLine("Содержимое корзины:");
+string readContent = File.ReadAllText("shopping.txt");
+WriteLine(readContent);
 
-File.WriteAllText(fileName, content);
+WriteLine("Добавить: ");
+string newItem = ReadLine();
 
-if (File.Exists(fileName))
+if (string.IsNullOrWhiteSpace(newItem))
 {
-    string contentRead = File.ReadAllText(fileName);
-
-    WriteLine("Содержимое файла:");
-
-    WriteLine(contentRead);
-
-    File.AppendAllText(fileName, "\nЧто прикажите?");
-
-    contentRead = File.ReadAllText(fileName);
-
-    WriteLine(contentRead);
+    WriteLine("Ошибка: нельзя добавить пустой элемент");
 }
-
 else
 {
-    WriteLine("Файл не найден");
+    File.AppendAllText("shopping.txt", newItem + "\n");
+
+    WriteLine($"{newItem} добавлен в корзину");
+
+    WriteLine("Обновлённое содержимое корзины:");
+    readContent = File.ReadAllText("shopping.txt");
+    WriteLine(readContent);
 }
