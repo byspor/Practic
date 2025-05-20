@@ -1,43 +1,53 @@
 ﻿using static System.Console;
 
-using (var writer = new StreamWriter("shopping.txt"))
-{
-    writer.WriteLine("Яблоки");
-    writer.WriteLine("Клубника");
-    writer.WriteLine("Бананы");
-    writer.WriteLine("Грейпфрут");
-}
+string cart = "Яблоки\nКлубника\nБананы\nГрейпфрут\n";
 
+string path = "shopping.txt";
+
+await WriteToFileAsync(path, cart, false);
 
 WriteLine("Содержимое корзины:");
-PrintFileContent();
+await ReadFromFileAsync(path);
 
-using (var writer = new StreamWriter("shopping.txt", append: true))
+Write("Добавить: ");
+string newItem = ReadLine();
+
+if (string.IsNullOrWhiteSpace(newItem))
 {
-    WriteLine("Добавить: ");
-    string newItem = ReadLine();
+    WriteLine("Ошибка: нельзя добавить пустой элемент");
+}
+else
+{
+    Write("Перезаписать файл (да/нет)? ");
 
-    if (string.IsNullOrWhiteSpace(newItem))
-    {
-        WriteLine("Ошибка: нельзя добавить пустой элемент");
-    }
-    else
-    {
-        writer.WriteLine(newItem);
+    string answer = ReadLine().ToLower();
 
-        WriteLine($"\n{newItem} добавлен в корзину\n");
+    bool append = answer == "да" ? false : true;
+
+    await WriteToFileAsync(path, newItem + "\n", append);
+    
+    WriteLine($"\n{newItem} добавлен в корзину\n");
+}
+
+
+WriteLine("Обновлённое содержимое корзины:");
+await ReadFromFileAsync(path);
+
+
+async Task WriteToFileAsync(string path, string content, bool append = true)
+{
+    using (var writer = new StreamWriter(path, append))
+    {
+        await writer.WriteAsync(content);
     }
 }
 
-WriteLine("Обновлённое содержимое корзины:");
-PrintFileContent();
-
-void PrintFileContent()
+async Task ReadFromFileAsync(string path)
 {
-    using (var reader = new StreamReader("shopping.txt"))
+    using (var reader = new StreamReader(path))
     {
         string line;
-        while ((line = reader.ReadLine()) != null)
+        while ((line = await reader.ReadLineAsync()) != null)
         {
             WriteLine(line);
         }
