@@ -8,15 +8,9 @@ using (var writer = new StreamWriter("shopping.txt"))
     writer.WriteLine("Грейпфрут");
 }
 
-using (var reader = new StreamReader("shopping.txt"))
-{
-    WriteLine("Содержимое корзины:");
-    string line;
-    while ((line = reader.ReadLine()) != null)
-    {
-        WriteLine(line);
-    }
-}
+
+WriteLine("Содержимое корзины:");
+PrintFileContent();
 
 using (var writer = new StreamWriter("shopping.txt", append: true))
 {
@@ -35,12 +29,17 @@ using (var writer = new StreamWriter("shopping.txt", append: true))
     }
 }
 
-using (var reader = new StreamReader("shopping.txt"))
+WriteLine("Обновлённое содержимое корзины:");
+PrintFileContent();
+
+void PrintFileContent()
 {
-    WriteLine("Обновлённое содержимое корзины:");
-    string line;
-    while ((line = reader.ReadLine()) != null)
+    using (var reader = new StreamReader("shopping.txt"))
     {
-        WriteLine(line);
+        string line;
+        while ((line = reader.ReadLine()) != null)
+        {
+            WriteLine(line);
+        }
     }
 }
