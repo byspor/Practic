@@ -10,17 +10,12 @@ users.Add(new AdminUser("admin", 101));
 users.Add(new Person("Оля", 22));
 users.Add(new GuestUser("Светлана", 18));
 
-await SaveUsersToFileAsync(users, "users.txt");
+string filePath = "users.txt";
 
-var loadedUsers = await LoadUsersFromFileAsync("users.txt");
+await SaveUsersToFileAsync(users, filePath);
 
+var loadedUsers = await LoadUsersFromFileAsync(filePath);
 
-
-async Task SaveUsersToFileAsync(List<IUser> users, string filePath)
-{
-    var lines = users.Select(u => $"{u.Name}, {u.Age}, {u.GetRole()}");
-    await File.WriteAllLinesAsync(filePath, lines);
-}
 
 WriteLine("Загруженные пользователи: ");
 foreach (var user in loadedUsers)
@@ -28,40 +23,64 @@ foreach (var user in loadedUsers)
     user.PrintInfo();
 }
 
+async Task SaveUsersToFileAsync(List<IUser> users, string filePath)
+{
+    try
+    {
+        var lines = users.Select(u => $"{u.Name},{u.Age},{u.GetRole()}");
+        await File.WriteAllLinesAsync(filePath, lines);
+    }
+    catch (Exception ex)
+    {
+        WriteLine($"Ошибка записи в файл: {ex.Message}");
+    }
+}
+
 async Task<List<IUser>> LoadUsersFromFileAsync(string filePath)
 {
+    var loadedUsers = new List<IUser>();
+
     if (!File.Exists(filePath))
     {
         WriteLine("Файл не найден");
-        return new List<IUser>();
+        return loadedUsers;
     }
 
-    var lines = await File.ReadAllLinesAsync(filePath);
-    var loadedUsers = new List<IUser>();
-
-    foreach (var line in lines)
+    try
     {
-        string[] parts = line.Split(',');
-        string name = parts[0];
-        int age = int.Parse(parts[1]);
-        string role = parts[2];
+        var lines = await File.ReadAllLinesAsync(filePath);
 
-        switch (role)
+
+        foreach (var line in lines)
         {
-            case "Пользователь":
-                loadedUsers.Add(new User(name, age));
-                break;
-            case "Админстратор":
-                loadedUsers.Add(new AdminUser(name, age));
-                break;
-            case "Обычный пользователь":
-                loadedUsers.Add(new Person(name, age));
-                break;
-            case "Гость":
-                loadedUsers.Add(new GuestUser(name, age));
-                break;
+            string[] parts = line.Split(',');
+            string name = parts[0];
+            int age = int.Parse(parts[1]);
+            string role = parts[2];
+
+            switch (role)
+            {
+                case "Пользователь":
+                    loadedUsers.Add(new User(name, age));
+                    break;
+                case "Администратор":
+                    loadedUsers.Add(new AdminUser(name, age));
+                    break;
+                case "Обычный пользователь":
+                    loadedUsers.Add(new Person(name, age));
+                    break;
+                case "Гость":
+                    loadedUsers.Add(new GuestUser(name, age));
+                    break;
+            }
         }
 
+
+    }
+
+    catch (Exception ex)
+    {
+        WriteLine($"Ошибка чтения файла: {ex.Message}");
     }
 
     return loadedUsers;
@@ -97,51 +116,6 @@ async Task<List<IUser>> LoadUsersFromFileAsync(string filePath)
 //    WriteLine($"Роль: {user.GetRole()}");
 //    user.PrintInfo();
 //}
-
-
-//var filtered = users
-//        .Where(user => user.Age >= 18)
-//        .OrderBy(user => user.Age);
-
-//WriteLine("Пользователи старше 18 лет:");
-//foreach (var user in filtered)
-//{
-//    user.PrintInfo();
-//}
-
-//var filteredTips1 = users
-//    .Where(user => user.Age >= 22)
-//    .OrderBy(user => user.Age);
-
-//WriteLine("Пользователи старше 22 года:");
-//foreach (var user in filteredTips1)
-//{
-//    user.PrintInfo();
-//}
-
-//var filteredTips2 = users
-//    .Where(u => u is Person user && user.Age >= 22)
-//    .ToList();
-
-
-//WriteLine("Пользователи старше 22 года:");
-//foreach (var user in filteredTips2)
-//{
-//    user.PrintInfo();
-//}
-
-//var filteredTips3 = users
-//    .OfType<GuestUser>()
-//    .Where(u => u.Name.Length > 5);
-
-
-//WriteLine("Имя больше 5 символов");
-//foreach (var user in filteredTips3)
-//{
-//    user.PrintInfo();
-//}
-
-
 
 public interface IUser
 {
@@ -269,7 +243,7 @@ public class User : BaseUser
 
     public override void PrintInfo()
     {
-        WriteLine($"Имя: {Name}, Возраст: {Age}");
+        WriteLine($"[{GetRole(),-20}] | Имя: {Name,-10} | Возраст: {Age,3} |");
     }
 
     public override void LogActivity()
@@ -308,7 +282,7 @@ public class Person : IUser
 
     public virtual void PrintInfo()
     {
-        WriteLine($"Имя: {Name}, Возраст: {Age}");
+        WriteLine($"[{GetRole(),-20}] | Имя: {Name,-10} | Возраст: {Age,3} |");
     }
 
     public virtual void ValidateData()
@@ -342,7 +316,7 @@ public class AdminUser : BaseUser
 
     public override void PrintInfo()
     {
-        WriteLine($"{GetRole()} Имя: {Name}, Возраст: {Age}");
+        WriteLine($"[{GetRole(),-20}] | Имя: {Name,-10} | Возраст: {Age,-3} |");
     }
 
     public override void ValidateData()
@@ -365,10 +339,10 @@ public class GuestUser : IUser
     public string Name { get; set; }
     public int Age { get; set; }
 
-    public GuestUser (string name, int age)
+    public GuestUser(string name, int age)
     {
-        Name=name;
-        Age=age;
+        Name = name;
+        Age = age;
     }
 
     public string GetRole()
@@ -378,7 +352,7 @@ public class GuestUser : IUser
 
     public void PrintInfo()
     {
-        WriteLine($"Имя: {Name}, Возраст: {Age}");
+        WriteLine($"[{GetRole(),-20}] | Имя: {Name,-10} | Возраст: {Age,3} |");
     }
 
     public void ValidateData()
