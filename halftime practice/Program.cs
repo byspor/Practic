@@ -1,55 +1,19 @@
 ﻿using static System.Console;
+using System.Text.Json;
 
-string cart = "Яблоки\nКлубника\nБананы\nГрейпфрут\n";
+Product product = new Product {Name = "Яблоко", Price = 50, InStock = true };
 
-string path = "shopping.txt";
+var options = new JsonSerializerOptions {WriteIndented = true };
+string json = JsonSerializer.Serialize(product, options);
+await File.WriteAllTextAsync("product.json", json);
 
-await WriteToFileAsync(path, cart, false);
+string loadedJson = await File.ReadAllTextAsync("product.json");
+Product loadedProduct = JsonSerializer.Deserialize<Product>(loadedJson);
 
-WriteLine("Содержимое корзины:");
-await ReadFromFileAsync(path);
-
-Write("Добавить: ");
-string newItem = ReadLine();
-
-if (string.IsNullOrWhiteSpace(newItem))
+WriteLine($"Продукт - {loadedProduct.Name, -10} | Цена - {loadedProduct.Price, -3} | Наличие - {(loadedProduct.InStock ? "Да" : "Нет"), -3}|");
+public class Product
 {
-    WriteLine("Ошибка: нельзя добавить пустой элемент");
-}
-else
-{
-    Write("Перезаписать файл (да/нет)? ");
-
-    string answer = ReadLine().ToLower();
-
-    bool append = answer == "да" ? false : true;
-
-    await WriteToFileAsync(path, newItem + "\n", append);
-    
-    WriteLine($"\n{newItem} добавлен в корзину\n");
-}
-
-
-WriteLine("Обновлённое содержимое корзины:");
-await ReadFromFileAsync(path);
-
-
-async Task WriteToFileAsync(string path, string content, bool append = true)
-{
-    using (var writer = new StreamWriter(path, append))
-    {
-        await writer.WriteAsync(content);
-    }
-}
-
-async Task ReadFromFileAsync(string path)
-{
-    using (var reader = new StreamReader(path))
-    {
-        string line;
-        while ((line = await reader.ReadLineAsync()) != null)
-        {
-            WriteLine(line);
-        }
-    }
+    public string Name { get; set; }
+    public int Price { get; set; }
+    public bool InStock { get; set; }
 }
