@@ -23,6 +23,21 @@ foreach (var user in loadedUsers)
     user.PrintInfo();
 }
 
+await RemoveUserFromFileAsync(filePath, "admin");
+WriteLine("Обновлённый список");
+var updateUsers = await LoadUsersFromFileAsync(filePath);
+foreach (var user in updateUsers)
+{
+    user.PrintInfo();
+}
+
+await UpdateUserInFileAsync(filePath, "Иван", "Пётр", 35, "Пользователь");
+updateUsers = await LoadUsersFromFileAsync(filePath);
+foreach (var user in updateUsers)
+{
+    user.PrintInfo();
+}
+
 async Task SaveUsersToFileAsync(List<IUser> users, string filePath)
 {
     try
@@ -84,6 +99,72 @@ async Task<List<IUser>> LoadUsersFromFileAsync(string filePath)
     }
 
     return loadedUsers;
+}
+
+async Task RemoveUserFromFileAsync(string filePath, string nameToRemove)
+{
+    if (!File.Exists(filePath))
+    {
+        WriteLine("Файл не найден");
+        return;
+    }
+
+    try
+    {
+        var lines = await File.ReadAllLinesAsync(filePath);
+        var updateLines = lines.Where(line =>
+        {
+            string[] parts = line.Split(',');
+            return parts[0] != nameToRemove;
+        }
+            );
+
+        await File.WriteAllLinesAsync(filePath, updateLines);
+        WriteLine($"Пользователь {nameToRemove} удален");
+    }
+
+    catch (Exception ex)
+    {
+        WriteLine($"Ошибка удаления: {ex.Message}");
+    }
+
+}
+
+async Task UpdateUserInFileAsync(string filePath, string oldName, string newName, int newAge, string newRole)
+{
+    if (!File.Exists(filePath))
+    {
+        WriteLine("Файл не найден");
+        return;
+    }
+
+    try
+    {
+        var lines = await File.ReadAllLinesAsync(filePath);
+        var updateLines = new List<string>();
+
+        foreach (var line in lines)
+        {
+            string[] parts = line.Split(',');
+
+            if (parts[0] == oldName)
+            {
+                updateLines.Add($"{newName},{newAge},{newRole}");
+            }
+            else
+            {
+                updateLines.Add(line);
+            }
+        }
+
+        await File.WriteAllLinesAsync(filePath, updateLines);
+        WriteLine($"Данные о пользователе {oldName} обновлены");
+    }
+
+    catch (Exception ex)
+    {
+        WriteLine($"Ошибка обновления: {ex.Message}");
+    }
 }
 
 
@@ -176,7 +257,7 @@ public class User : BaseUser
 
         if (string.IsNullOrWhiteSpace(input))
         {
-            WriteLine("Имя не может быть пустым. Установленно имя по умолчанию: 'Гость'");
+            WriteLine("Имя не может быть пустым. Установлено имя по умолчанию: 'Гость'");
             return "Гость";
         }
 
