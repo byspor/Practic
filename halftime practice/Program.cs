@@ -1,7 +1,6 @@
 ﻿using static System.Console;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-
 User user = new User
 {
     Name = "Иван",
@@ -44,7 +43,6 @@ catch (Exception ex)
 {
     WriteLine($"Ошибка: {ex.Message}");
 }
-
 
 public class Product
 {
