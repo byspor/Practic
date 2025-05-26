@@ -1,5 +1,6 @@
 ﻿using static System.Console;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 User user = new User
 {
@@ -54,13 +55,17 @@ public class Product
 
 public class User
 {
+    [JsonPropertyName("username")]    
     public string Name { get; set; }
+    [JsonPropertyName("user_age")]
     public int Age { get; set; }
     public Profile Profile { get; set; }
 }
 
 public class Profile
 {
+    [JsonPropertyName("location")]
     public string City { get; set; }
+    [JsonPropertyName("contact_email")]
     public string Email { get; set; }
 }
