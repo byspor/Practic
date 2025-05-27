@@ -59,15 +59,14 @@ public class StringToListConverter : JsonConverter<List<string>>
             return value?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
         }
 
-        return JsonSerializer.Deserialize<List<string>>(ref reader, options);
-    }
+var options = new JsonSerializerOptions {WriteIndented = true };
+string json = JsonSerializer.Serialize(product, options);
+await File.WriteAllTextAsync("product.json", json);
 
-    public override void Write(Utf8JsonWriter writer, List<string> value, JsonSerializerOptions options)
-    {
-        writer.WriteStringValue(string.Join(",", value));
-    }
+string loadedJson = await File.ReadAllTextAsync("product.json");
+Product loadedProduct = JsonSerializer.Deserialize<Product>(loadedJson);
 
-}
+WriteLine($"Продукт - {loadedProduct.Name, -10} | Цена - {loadedProduct.Price, -3} | Наличие - {(loadedProduct.InStock ? "Да" : "Нет"), -3}|");
 public class Product
 {
     public string Name { get; set; }
