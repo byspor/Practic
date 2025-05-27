@@ -2,8 +2,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-
-
 User user = new User
 {
     Name = "Иван",
@@ -68,7 +66,6 @@ public class StringToListConverter : JsonConverter<List<string>>
     {
         writer.WriteStringValue(string.Join(",", value));
     }
-
 
 }
 public class Product
